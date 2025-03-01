@@ -1,8 +1,20 @@
-import { Controller, Get, Post, Body, Param, Inject } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Inject,
+  ParseUUIDPipe,
+  Query,
+  Patch,
+} from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
 import { CreateOrderDto } from './dto/create-order.dto';
 import { ORDER_SERVICE } from 'src/config';
+import { OrderPaginationDto, StatusDto } from './dto';
+import { PaginationDto } from 'src/common';
 
 @Controller('orders')
 export class OrdersController {
@@ -16,12 +28,34 @@ export class OrdersController {
   }
 
   @Get()
-  findAll() {
-    return this.ordersClient.send('findAllOrders', {});
+  findAll(@Query() orderPaginationDto: OrderPaginationDto) {
+    return this.ordersClient.send('findAllOrders', orderPaginationDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersClient.send('findOneOrder', id);
+  @Get('id/:id')
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.ordersClient.send('findOneOrder', { id });
+  }
+
+  @Get(':status')
+  findByStatus(
+    @Param() statusDto: StatusDto,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.ordersClient.send('findAllOrders', {
+      ...statusDto,
+      ...paginationDto,
+    });
+  }
+
+  @Patch(':id')
+  changeStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() statusDto: StatusDto,
+  ) {
+    return this.ordersClient.send('changeOrderStatus', {
+      id,
+      ...statusDto,
+    });
   }
 }
