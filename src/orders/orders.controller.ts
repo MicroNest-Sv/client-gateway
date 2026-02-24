@@ -11,10 +11,10 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 
-import { CreateOrderDto } from './dto/create-order.dto';
-import { ORDER_SERVICE } from 'src/config';
-import { OrderPaginationDto, StatusDto } from './dto';
-import { PaginationDto } from 'src/common';
+import { PaginationDto } from '@src/common';
+
+import { ORDER_SERVICE } from './config';
+import { CreateOrderDto, OrderPaginationDto, StatusDto } from './dto';
 
 @Controller('orders')
 export class OrdersController {

@@ -1,2 +1,1 @@
-export * from './envs';
-export * from './services';
+export { default as appConfig } from './app.config';
