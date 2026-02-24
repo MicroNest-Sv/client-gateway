@@ -27,15 +27,24 @@ export class ProductsController {
 
   @Post()
   create(@Body() createProductDto: CreateProductDto) {
-    return this.productsClient.send(
-      { cmd: 'create_product' },
-      createProductDto,
-    );
+    return this.productsClient
+      .send({ cmd: 'create_product' }, createProductDto)
+      .pipe(
+        catchError((error: string | object) => {
+          throw new RpcException(error);
+        }),
+      );
   }
 
   @Get()
   findAll(@Query() paginationDto: PaginationDto) {
-    return this.productsClient.send({ cmd: 'get_all_products' }, paginationDto);
+    return this.productsClient
+      .send({ cmd: 'get_all_products' }, paginationDto)
+      .pipe(
+        catchError((error: string | object) => {
+          throw new RpcException(error);
+        }),
+      );
   }
 
   @Get(':id')

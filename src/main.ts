@@ -1,5 +1,10 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Logger,
+  ValidationPipe,
+} from '@nestjs/common';
 
 import { AppModule } from './app.module';
 import { appConfig } from './config';
@@ -18,6 +23,15 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => {
+        const messages = errors.map((error) =>
+          Object.values(error.constraints ?? {}).join(', '),
+        );
+        return new HttpException(
+          { status: HttpStatus.BAD_REQUEST, message: messages },
+          HttpStatus.BAD_REQUEST,
+        );
+      },
     }),
   );
 

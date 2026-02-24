@@ -4,7 +4,7 @@ import { Response } from 'express';
 
 interface RpcError {
   status: number;
-  message: string;
+  message: string | string[];
 }
 
 @Catch(RpcException)
@@ -34,13 +34,11 @@ export class RpcCustomExceptionFilter implements ExceptionFilter<RpcException> {
   }
 
   private isRpcError(error: unknown): error is RpcError {
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      'status' in error &&
-      'message' in error &&
-      typeof (error as RpcError).message === 'string'
-    );
+    if (typeof error !== 'object' || error === null) return false;
+    if (!('status' in error) || !('message' in error)) return false;
+
+    const { message } = error as RpcError;
+    return typeof message === 'string' || Array.isArray(message);
   }
 
   private extractStatus(error: RpcError): number {
