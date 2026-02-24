@@ -6,7 +6,7 @@ import { appConfig } from './config';
 import { RpcCustomExceptionFilter } from './common';
 
 async function bootstrap() {
-  const logger = new Logger('Main-Gateway');
+  const logger = new Logger('Gateway');
 
   const appConfigValues = appConfig();
 

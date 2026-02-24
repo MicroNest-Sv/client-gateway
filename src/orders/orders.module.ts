@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigType } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
 import { ORDER_SERVICE, ordersConfig } from './config';
@@ -10,14 +10,18 @@ import { OrdersController } from './orders.controller';
   providers: [],
   imports: [
     ConfigModule.forFeature(ordersConfig),
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
         name: ORDER_SERVICE,
-        transport: Transport.TCP,
-        options: {
-          host: ordersConfig().ordersMicroserviceHost,
-          port: ordersConfig().ordersMicroservicePort,
-        },
+        imports: [ConfigModule.forFeature(ordersConfig)],
+        inject: [ordersConfig.KEY],
+        useFactory: (config: ConfigType<typeof ordersConfig>) => ({
+          transport: Transport.TCP,
+          options: {
+            host: config.ordersMicroserviceHost,
+            port: config.ordersMicroservicePort,
+          },
+        }),
       },
     ]),
   ],
