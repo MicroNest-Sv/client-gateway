@@ -28,17 +28,14 @@ export class ProductsController {
   @Post()
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsClient.send(
-      { cmd: 'create-product' },
+      { cmd: 'create_product' },
       createProductDto,
     );
   }
 
   @Get()
   findAll(@Query() paginationDto: PaginationDto) {
-    return this.productsClient.send(
-      { cmd: 'find-all-products' },
-      paginationDto,
-    );
+    return this.productsClient.send({ cmd: 'get_all_products' }, paginationDto);
   }
 
   @Get(':id')
@@ -52,18 +49,7 @@ export class ProductsController {
     //   throw new RpcException(error);
     // }
 
-    return this.productsClient.send({ cmd: 'find-one-product' }, { id }).pipe(
-      catchError((error) => {
-        throw new RpcException(
-          typeof error === 'string' ? error : JSON.stringify(error),
-        );
-      }),
-    );
-  }
-
-  @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.productsClient.send({ cmd: 'remove-product' }, { id }).pipe(
+    return this.productsClient.send({ cmd: 'get_product_by_id' }, { id }).pipe(
       catchError((error) => {
         throw new RpcException(
           typeof error === 'string' ? error : JSON.stringify(error),
@@ -78,7 +64,7 @@ export class ProductsController {
     @Body() updateProductDto: UpdateProductDto,
   ) {
     return this.productsClient
-      .send({ cmd: 'update-product' }, { id, ...updateProductDto })
+      .send({ cmd: 'update_product' }, { id, ...updateProductDto })
       .pipe(
         catchError((error) => {
           throw new RpcException(
@@ -86,5 +72,16 @@ export class ProductsController {
           );
         }),
       );
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.productsClient.send({ cmd: 'delete_product' }, { id }).pipe(
+      catchError((error) => {
+        throw new RpcException(
+          typeof error === 'string' ? error : JSON.stringify(error),
+        );
+      }),
+    );
   }
 }
