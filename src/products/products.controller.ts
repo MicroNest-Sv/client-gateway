@@ -40,20 +40,9 @@ export class ProductsController {
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    // try {
-    //   const product = await firstValueFrom(
-    //     this.productsClient.send({ cmd: 'find-one-product' }, { id }),
-    //   );
-    //   return product;
-    // } catch (error) {
-    //   throw new RpcException(error);
-    // }
-
     return this.productsClient.send({ cmd: 'get_product_by_id' }, { id }).pipe(
-      catchError((error) => {
-        throw new RpcException(
-          typeof error === 'string' ? error : JSON.stringify(error),
-        );
+      catchError((error: string | object) => {
+        throw new RpcException(error);
       }),
     );
   }
@@ -66,10 +55,8 @@ export class ProductsController {
     return this.productsClient
       .send({ cmd: 'update_product' }, { id, ...updateProductDto })
       .pipe(
-        catchError((error) => {
-          throw new RpcException(
-            typeof error === 'string' ? error : JSON.stringify(error),
-          );
+        catchError((error: string | object) => {
+          throw new RpcException(error);
         }),
       );
   }
@@ -77,10 +64,8 @@ export class ProductsController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.productsClient.send({ cmd: 'delete_product' }, { id }).pipe(
-      catchError((error) => {
-        throw new RpcException(
-          typeof error === 'string' ? error : JSON.stringify(error),
-        );
+      catchError((error: string | object) => {
+        throw new RpcException(error);
       }),
     );
   }
