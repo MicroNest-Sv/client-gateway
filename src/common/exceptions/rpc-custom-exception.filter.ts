@@ -4,52 +4,26 @@ import { Response } from 'express';
 
 interface RpcError {
   status: number;
-  message: string | string[];
+  messages?: string[];
 }
 
 @Catch(RpcException)
 export class RpcCustomExceptionFilter implements ExceptionFilter<RpcException> {
   catch(exception: RpcException, host: ArgumentsHost): void {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-
+    const response = host.switchToHttp().getResponse<Response>();
     const rpcError = exception.getError();
 
-    const error =
-      typeof rpcError === 'string' ? this.tryParseJson(rpcError) : rpcError;
+    const error: RpcError =
+      typeof rpcError === 'object' && rpcError !== null && 'status' in rpcError
+        ? (rpcError as RpcError)
+        : { status: 400, messages: [JSON.stringify(rpcError)] };
 
-    if (this.isRpcError(error)) {
-      const status = this.extractStatus(error);
-      response.status(status).json({
-        status,
-        message: error.message,
-      });
-      return;
-    }
+    const status = error.status || 400;
 
-    response.status(400).json({
-      status: 400,
-      message: rpcError,
-    });
-  }
+    const messages = Array.isArray(error.messages)
+      ? error.messages
+      : [String(error.messages)];
 
-  private isRpcError(error: unknown): error is RpcError {
-    if (typeof error !== 'object' || error === null) return false;
-    if (!('status' in error) || !('message' in error)) return false;
-
-    const { message } = error as RpcError;
-    return typeof message === 'string' || Array.isArray(message);
-  }
-
-  private extractStatus(error: RpcError): number {
-    return isNaN(Number(error.status)) ? 400 : Number(error.status);
-  }
-
-  private tryParseJson(value: string): RpcError | string {
-    try {
-      return JSON.parse(value) as RpcError;
-    } catch {
-      return value;
-    }
+    response.status(status).json({ status, messages });
   }
 }
