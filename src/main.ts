@@ -28,7 +28,7 @@ async function bootstrap() {
           Object.values(error.constraints ?? {}).join(', '),
         );
         return new HttpException(
-          { status: HttpStatus.BAD_REQUEST, message: messages },
+          { status: HttpStatus.BAD_REQUEST, messages: messages },
           HttpStatus.BAD_REQUEST,
         );
       },
