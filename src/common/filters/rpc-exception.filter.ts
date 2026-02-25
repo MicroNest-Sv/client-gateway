@@ -8,7 +8,7 @@ interface RpcError {
 }
 
 @Catch(RpcException)
-export class RpcCustomExceptionFilter implements ExceptionFilter<RpcException> {
+export class RpcExceptionFilter implements ExceptionFilter<RpcException> {
   catch(exception: RpcException, host: ArgumentsHost): void {
     const response = host.switchToHttp().getResponse<Response>();
     const rpcError = exception.getError();

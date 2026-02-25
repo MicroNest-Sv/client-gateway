@@ -6,9 +6,9 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
-import { AppModule } from './app.module';
+import { RpcExceptionFilter } from './common';
 import { appConfig } from './config';
-import { RpcCustomExceptionFilter } from './common';
+import { AppModule } from './app.module';
 
 async function bootstrap() {
   const logger = new Logger('Gateway');
@@ -35,7 +35,7 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalFilters(new RpcCustomExceptionFilter());
+  app.useGlobalFilters(new RpcExceptionFilter());
 
   await app.listen(appConfigValues.port);
 
