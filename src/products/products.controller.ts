@@ -10,11 +10,10 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
 
-import { PaginationDto } from '@src/common';
+import { PaginationQueryDto } from '@src/common/dtos';
 
 import { PRODUCT_SERVICE } from './config';
 import { CreateProductDto, UpdateProductDto } from './dto';
@@ -37,9 +36,9 @@ export class ProductsController {
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
+  findAll(@Query() paginationQueryDto: PaginationQueryDto) {
     return this.productsClient
-      .send({ cmd: 'get_all_products' }, paginationDto)
+      .send({ cmd: 'get_all_products' }, paginationQueryDto)
       .pipe(
         catchError((error: string | object) => {
           throw new RpcException(error);

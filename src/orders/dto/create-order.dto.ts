@@ -5,7 +5,8 @@ import {
   IsOptional,
   IsPositive,
 } from 'class-validator';
-import { OrderStatus, OrderStatusList } from '../enums/order.enum';
+
+import { OrderStatus } from '../enums';
 
 export class CreateOrderDto {
   @IsNumber()
@@ -16,10 +17,8 @@ export class CreateOrderDto {
   @IsPositive()
   totalItems: number;
 
-  @IsEnum(OrderStatusList, {
-    message: `Status must be one of the following values: ${OrderStatusList.join(
-      ', ',
-    )}`,
+  @IsEnum(OrderStatus, {
+    message: `Status must be one of the following values: ${Object.values(OrderStatus).join(', ')}`,
   })
   @IsOptional()
   status: OrderStatus = OrderStatus.PENDING;
