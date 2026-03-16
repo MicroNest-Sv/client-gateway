@@ -39,7 +39,7 @@ async function bootstrap() {
 
   await app.listen(appConfigValues.port);
 
-  logger.log(`Gateway running on port ${appConfigValues.port}`);
+  logger.log(`Gateway running at ${await app.getUrl()}`);
 }
 
 void bootstrap();

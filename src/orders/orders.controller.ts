@@ -12,19 +12,18 @@ import {
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
 
-import { ORDER_SERVICE } from './config';
-import { CreateOrderDto, OrderQueryDto, StatusDto } from './dto';
+import { NATS_SERVICE } from '@src/config';
 import { PaginationQueryDto } from '@src/common/dtos';
+
+import { CreateOrderDto, OrderQueryDto, StatusDto } from './dto';
 
 @Controller('orders')
 export class OrdersController {
-  constructor(
-    @Inject(ORDER_SERVICE) private readonly ordersClient: ClientProxy,
-  ) {}
+  constructor(@Inject(NATS_SERVICE) private readonly natsClient: ClientProxy) {}
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersClient.send('createOrder', createOrderDto).pipe(
+    return this.natsClient.send('createOrder', createOrderDto).pipe(
       catchError((error: string | object) => {
         throw new RpcException(error);
       }),
@@ -33,7 +32,7 @@ export class OrdersController {
 
   @Get()
   findAll(@Query() orderQueryDto: OrderQueryDto) {
-    return this.ordersClient.send('findAllOrders', orderQueryDto).pipe(
+    return this.natsClient.send('findAllOrders', orderQueryDto).pipe(
       catchError((error: string | object) => {
         throw new RpcException(error);
       }),
@@ -42,7 +41,7 @@ export class OrdersController {
 
   @Get('id/:id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.ordersClient.send('findOneOrder', { id }).pipe(
+    return this.natsClient.send('findOneOrder', { id }).pipe(
       catchError((error: string | object) => {
         throw new RpcException(error);
       }),
@@ -54,7 +53,7 @@ export class OrdersController {
     @Param() statusDto: StatusDto,
     @Query() paginationQueryDto: PaginationQueryDto,
   ) {
-    return this.ordersClient
+    return this.natsClient
       .send('findAllOrders', {
         ...statusDto,
         ...paginationQueryDto,
@@ -71,7 +70,7 @@ export class OrdersController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() statusDto: StatusDto,
   ) {
-    return this.ordersClient
+    return this.natsClient
       .send('changeOrderStatus', {
         id,
         ...statusDto,

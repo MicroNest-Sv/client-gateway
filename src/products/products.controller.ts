@@ -13,20 +13,18 @@ import {
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
 
+import { NATS_SERVICE } from '@src/config';
 import { PaginationQueryDto } from '@src/common/dtos';
 
-import { PRODUCT_SERVICE } from './config';
 import { CreateProductDto, UpdateProductDto } from './dto';
 
 @Controller('products')
 export class ProductsController {
-  constructor(
-    @Inject(PRODUCT_SERVICE) private readonly productsClient: ClientProxy,
-  ) {}
+  constructor(@Inject(NATS_SERVICE) private readonly natsClient: ClientProxy) {}
 
   @Post()
   create(@Body() createProductDto: CreateProductDto) {
-    return this.productsClient
+    return this.natsClient
       .send({ cmd: 'create_product' }, createProductDto)
       .pipe(
         catchError((error: string | object) => {
@@ -37,7 +35,7 @@ export class ProductsController {
 
   @Get()
   findAll(@Query() paginationQueryDto: PaginationQueryDto) {
-    return this.productsClient
+    return this.natsClient
       .send({ cmd: 'get_all_products' }, paginationQueryDto)
       .pipe(
         catchError((error: string | object) => {
@@ -48,7 +46,7 @@ export class ProductsController {
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.productsClient.send({ cmd: 'get_product_by_id' }, { id }).pipe(
+    return this.natsClient.send({ cmd: 'get_product_by_id' }, { id }).pipe(
       catchError((error: string | object) => {
         throw new RpcException(error);
       }),
@@ -60,7 +58,7 @@ export class ProductsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
   ) {
-    return this.productsClient
+    return this.natsClient
       .send({ cmd: 'update_product' }, { id, ...updateProductDto })
       .pipe(
         catchError((error: string | object) => {
@@ -71,7 +69,7 @@ export class ProductsController {
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
-    return this.productsClient.send({ cmd: 'delete_product' }, { id }).pipe(
+    return this.natsClient.send({ cmd: 'delete_product' }, { id }).pipe(
       catchError((error: string | object) => {
         throw new RpcException(error);
       }),
