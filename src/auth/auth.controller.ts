@@ -4,24 +4,24 @@ import { catchError } from 'rxjs';
 
 import { NATS_SERVICE } from '@src/config';
 
-import { RegisterUserDto, LoginUserDto } from './dto';
+import { SignUpDto, SignInDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(@Inject(NATS_SERVICE) private readonly natsClient: ClientProxy) {}
 
-  @Post('register')
-  register(@Body() registerUserDto: RegisterUserDto) {
-    return this.natsClient.send('auth.register', registerUserDto).pipe(
+  @Post('sign-up')
+  signUp(@Body() signUpDto: SignUpDto) {
+    return this.natsClient.send('auth.sign-up', signUpDto).pipe(
       catchError((error: string | object) => {
         throw new RpcException(error);
       }),
     );
   }
 
-  @Post('login')
-  login(@Body() loginUserDto: LoginUserDto) {
-    return this.natsClient.send('auth.login', loginUserDto).pipe(
+  @Post('sign-in')
+  signIn(@Body() signInDto: SignInDto) {
+    return this.natsClient.send('auth.sign-in', signInDto).pipe(
       catchError((error: string | object) => {
         throw new RpcException(error);
       }),
