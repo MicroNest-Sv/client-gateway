@@ -1,12 +1,12 @@
 import {
   CanActivate,
   ExecutionContext,
+  HttpStatus,
   Inject,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { Request } from 'express';
 import { firstValueFrom } from 'rxjs';
 
@@ -34,7 +34,10 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException('Token no proporcionado');
+      throw new RpcException({
+        status: HttpStatus.UNAUTHORIZED,
+        messages: ['Token no proporcionado'],
+      });
     }
 
     try {
@@ -43,8 +46,13 @@ export class AuthGuard implements CanActivate {
       );
 
       request['user'] = user;
-    } catch {
-      throw new UnauthorizedException('Token inválido o expirado');
+    } catch (error) {
+      if (error instanceof RpcException) throw error;
+
+      throw new RpcException({
+        status: HttpStatus.UNAUTHORIZED,
+        messages: ['Token inválido o expirado'],
+      });
     }
 
     return true;
