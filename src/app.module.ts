@@ -5,6 +5,7 @@ import { appConfig } from './config';
 import { ProductsModule } from './products';
 import { OrdersModule } from './orders';
 import { NatsModule } from './transports/nats.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { NatsModule } from './transports/nats.module';
     ProductsModule,
     OrdersModule,
     NatsModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
