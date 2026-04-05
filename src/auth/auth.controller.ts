@@ -1,11 +1,12 @@
-import { Body, Controller, Get, Headers, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { catchError } from 'rxjs';
 
 import { NATS_SERVICE } from '@src/config';
 
+import { Public, User } from './decorators';
 import { SignUpDto, SignInDto } from './dto';
-import { Public } from './decorators/public.decorator';
+import { type CurrentUser } from './interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -31,14 +32,8 @@ export class AuthController {
     );
   }
 
-  @Get('verify')
-  verify(@Headers('authorization') authorization: string) {
-    const token = authorization?.replace('Bearer ', '');
-
-    return this.natsClient.send('auth.verify', { token }).pipe(
-      catchError((error: string | object) => {
-        throw new RpcException(error);
-      }),
-    );
+  @Get('me')
+  me(@User() user: CurrentUser) {
+    return user;
   }
 }
